@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#ffffff">
+<title>You are invited · Baby Shower High Tea</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Pinyon+Script&display=swap" rel="stylesheet">
+<style>
+:root{--rose:#c9577a;--rose-soft:#e8a9bd;--blush:#f8dce6;--blush-deep:#f0bcd0;--ink:#5f4a54;--ink-soft:#87707c;--line:#f3d9e2;--white:#fff;--envH:clamp(186px,56vw,232px);
+/* sits the envelope low so the letter has room to be drawn up out of it */
+--pad:max(40px,calc(76vh - var(--envH) - 38px))}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+/* gradient lives on html so it stretches over the whole document instead of tiling at body height */
+html{min-height:100%;background:linear-gradient(170deg,#fff 0%,#fffafc 55%,#fdf2f6 100%) fixed}
+/* the clipping box the letter is drawn out of overhangs the page; no scrolling until it has landed */
+html:not(.opened){overflow:hidden}
+/* clip, not hidden: hidden on one axis forces the other to auto, which gives body its own scrollbar */
+body{font-family:'Cormorant Garamond',Georgia,serif;color:var(--ink);overflow-x:clip;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:var(--pad) 16px 40px;position:relative}
+.petals{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
+.petal{position:absolute;top:-40px;width:13px;height:13px;border-radius:60% 0 60% 0;background:linear-gradient(135deg,#fff,#f8dce6);opacity:.5;filter:drop-shadow(0 2px 3px rgba(201,87,122,.1));animation:fall linear infinite}
+.petal.p2{width:9px;height:9px;background:linear-gradient(135deg,#fff,#f0bcd0)}
+.petal.p3{width:16px;height:16px;background:linear-gradient(135deg,#fff,#fffafc)}
+@keyframes fall{0%{transform:translateY(-40px) rotate(0);opacity:0}10%{opacity:.5}100%{transform:translateY(110vh) rotate(540deg);opacity:0}}
+.blooms{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bloom{position:absolute;background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-14 -14 28 28'><g fill='%23eec6d6'><ellipse rx='3.6' ry='4.9' cy='-3.6'/><ellipse rx='3.6' ry='4.9' cy='-3.6' transform='rotate(72)'/><ellipse rx='3.6' ry='4.9' cy='-3.6' transform='rotate(144)'/><ellipse rx='3.6' ry='4.9' cy='-3.6' transform='rotate(216)'/><ellipse rx='3.6' ry='4.9' cy='-3.6' transform='rotate(288)'/><circle r='1.9' fill='%23e4b2c8'/></g></svg>") no-repeat center/contain;animation:wander linear infinite}
+/* each bloom gets its own randomised waypoints from JS so no two drift alike */
+@keyframes wander{
+0%{transform:translate(0,0) rotate(0)}
+25%{transform:translate(var(--x1),var(--y1)) rotate(var(--r1))}
+50%{transform:translate(var(--x2),var(--y2)) rotate(var(--r2))}
+75%{transform:translate(var(--x3),var(--y3)) rotate(var(--r3))}
+100%{transform:translate(0,0) rotate(0)}
+}
+.scene{position:relative;z-index:5;width:min(340px,88vw);perspective:1400px;display:flex;flex-direction:column;align-items:center;--peek:calc(.5 * var(--envH) - 9px)}
+.hint{color:var(--rose);font-size:13px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:22px;animation:pulse 2.4s ease-in-out infinite;text-align:center;transition:opacity .4s ease}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:.95}}
+.scene.open .hint{opacity:0;animation:none}
+/* the card sits between env-back and env-front, so the envelope masks it as it slides out */
+.stack{position:relative;width:100%;min-height:var(--envH)}
+/* both layers bob on the same clock so the closed envelope drifts as one piece */
+.env-back,.env-front{position:absolute;top:0;left:50%;transform:translateX(-50%);width:calc(100% + 26px);height:var(--envH);transition:opacity .45s ease,transform .6s ease;transform-origin:50% 100%;animation:bob 2.9s .25s infinite}
+/* hop first, rest after, so the very first bounce lands just after the page paints */
+@keyframes bob{
+0%{transform:translateX(-50%) translateY(0);animation-timing-function:cubic-bezier(.25,.6,.3,1)}
+10%{transform:translateX(-50%) translateY(-16px);animation-timing-function:cubic-bezier(.7,0,.9,.45)}
+19%{transform:translateX(-50%) translateY(0) scale(1.015,.975);animation-timing-function:cubic-bezier(.25,.6,.3,1)}
+26%{transform:translateX(-50%) translateY(-7px);animation-timing-function:cubic-bezier(.7,0,.9,.45)}
+33%{transform:translateX(-50%) translateY(0) scale(1.008,.988);animation-timing-function:cubic-bezier(.25,.6,.3,1)}
+38%{transform:translateX(-50%) translateY(-2px);animation-timing-function:cubic-bezier(.7,0,.9,.45)}
+43%,100%{transform:translateX(-50%) translateY(0)}}
+.env-back{z-index:1;background:linear-gradient(160deg,#f7d3e0,#f0bdd0);border-radius:12px;box-shadow:0 22px 46px -20px rgba(201,87,122,.4)}
+.env-front{z-index:3;cursor:pointer;perspective:900px}
+/* the drop waits for .out: applied on .open it snaps instantly (no transition off an
+   interrupted animation) and the bare 16px shift uncovers the top edge of the letter */
+.scene.open .env-back,.scene.open .env-front{animation:none}
+.scene.out .env-back,.scene.out .env-front{opacity:0;transform:translateX(-50%) translateY(16px)}
+.scene.open .env-front{pointer-events:none}
+.pocket{position:absolute;inset:0;background:linear-gradient(180deg,#efbacd,#e9aec4);clip-path:polygon(0 0,50% 50%,100% 0,100% 100%,0 100%);border-radius:0 0 12px 12px;z-index:2;box-shadow:inset 0 9px 16px -8px rgba(201,87,122,.35)}
+.flap{position:absolute;top:0;left:0;width:100%;height:50%;background:linear-gradient(180deg,#f4c5d6,#eeb7cc);clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top center;transform:rotateX(0);z-index:3;
+/* once it swings past vertical the flap would rear up above the envelope, so hide its back face */
+-webkit-backface-visibility:hidden;backface-visibility:hidden;transition:transform .6s cubic-bezier(.6,.05,.3,1) .08s,opacity .28s ease .32s}
+.scene.open .flap{transform:rotateX(180deg);opacity:0}
+.seal{position:absolute;top:50%;left:50%;width:clamp(40px,12vw,50px);height:clamp(40px,12vw,50px);transform:translate(-50%,-50%);background:radial-gradient(circle at 38% 32%,#e8a9bd,#c9577a 72%);border-radius:50%;z-index:4;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(201,87,122,.45),inset 0 2px 4px rgba(255,255,255,.5);transition:transform .45s ease,opacity .35s ease}
+.scene.open .seal{transform:translate(-50%,-50%) scale(0);opacity:0}
+.seal svg{width:22px;height:22px;fill:#fff;opacity:.95}
+/* the oversized padding box lets clip-path hide everything below the envelope mouth
+   while still allowing the card to be drawn far above it; the margins cancel it out of flow */
+.card-wrap{position:relative;z-index:2;width:100%;pointer-events:none;margin-top:calc(9px - 100vh);padding-top:100vh;margin-bottom:var(--endY,-250px);clip-path:inset(0 0 calc(100% - 100vh - var(--peek)) 0)}
+.scene.out .card-wrap{clip-path:none}
+.card{position:relative;width:100%;background:var(--white);border-radius:8px;padding:clamp(22px,6vw,30px) clamp(18px,5.5vw,24px) clamp(20px,5vw,26px);text-align:center;box-shadow:0 14px 34px -18px rgba(90,74,79,.45);overflow:hidden;border:1px solid var(--line);pointer-events:auto;transform-origin:top center;transform:translateY(0) scale(var(--pullS,.6))}
+.scene.open .card{animation:letterOut 2.05s .5s forwards}
+/* out of the envelope first, brief hold, then it settles down to reading size */
+@keyframes letterOut{
+0%{transform:translateY(0) scale(var(--pullS,.6));animation-timing-function:cubic-bezier(.33,.86,.36,1)}
+48%{transform:translateY(var(--pullY,-260px)) scale(var(--pullS,.6));animation-timing-function:linear}
+58%{transform:translateY(var(--pullY,-260px)) scale(var(--pullS,.6));animation-timing-function:cubic-bezier(.36,1.12,.5,1)}
+100%{transform:translateY(var(--endY,-250px)) scale(1)}
+}
+/* once settled, move the layout box to where the card actually is so the page sizes correctly */
+.scene.done .card-wrap{margin-top:calc(9px - 100vh + var(--endY,-250px));margin-bottom:0}
+.scene.done .card{animation:none;transform:none}
+.card::before{content:"";position:absolute;top:13px;left:50%;width:60px;height:1px;transform:translateX(-50%);background:linear-gradient(90deg,transparent,var(--rose-soft),transparent)}
+.scene.open{cursor:default}
+.script{font-family:'Pinyon Script',cursive;color:var(--rose);font-size:clamp(24px,7.5vw,32px);line-height:1.1;margin-bottom:6px}
+/* both only appear when the URL carries ?invite=Name */
+.greeting{font-size:clamp(15px,4.4vw,18px);font-style:italic;color:var(--ink-soft);margin-bottom:2px}
+.addressee{position:absolute;top:68%;left:0;width:100%;padding:0 20px;z-index:3;text-align:center;font-family:'Pinyon Script',cursive;font-size:clamp(21px,6.4vw,27px);line-height:1.15;color:#fff;text-shadow:0 1px 2px rgba(201,87,122,.35)}
+.main-text{font-size:clamp(18px,5.2vw,22px);line-height:1.35;font-weight:500;color:var(--ink);margin:8px 0 18px;text-wrap:balance}
+.main-text em{font-style:italic;color:var(--rose)}
+.details{font-size:clamp(14px,4.3vw,17px);line-height:1.7;color:var(--ink-soft);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:14px 0;margin-bottom:16px}
+.details .row{display:block}.details .row+.row{margin-top:2px}
+.details .place{color:var(--rose);font-style:italic}
+.details .addr{color:inherit;text-decoration:none}
+/* a pin rather than an underline: a rule here reads as another section divider */
+.details .addr::before{content:"";display:inline-block;width:.72em;height:.72em;margin-right:.3em;vertical-align:-.04em;background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c9577a'><path d='M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z'/></svg>") no-repeat center/contain}
+.details .nokids{font-size:clamp(12px,3.4vw,14px);font-style:italic;line-height:1.45;margin-top:12px}
+.details .dot{display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--rose-soft);margin:0 8px;vertical-align:middle}
+.note{font-size:clamp(12px,3.4vw,14px);color:var(--ink-soft);font-style:italic;margin-bottom:12px;line-height:1.45;text-wrap:pretty}
+.note .nb{color:var(--rose);font-style:normal;font-weight:600;letter-spacing:.04em;text-transform:uppercase;font-size:11px;display:block;margin-bottom:3px}
+.note+.note{border-top:1px dashed var(--line);padding-top:12px}
+.hrt{color:var(--rose-soft);font-style:normal}
+.littlenote{margin-top:20px;padding-top:20px;border-top:1px solid var(--line)}
+.rsvp{font-size:clamp(13px,4vw,16px);color:var(--rose);letter-spacing:.04em}
+.rsvp a{color:var(--rose);text-decoration:none;border-bottom:1px dotted var(--rose-soft)}
+.rsvp .by{display:block;font-size:13px;color:var(--ink-soft);margin-top:4px}
+@media (max-width:360px){.seal svg{width:19px;height:19px}}
+@media (max-height:640px){:root{--envH:clamp(148px,42vw,178px)}body{padding-bottom:24px}}
+@media (prefers-reduced-motion:reduce){.petal,.bloom,.hint,.env-back,.env-front{animation:none}.scene.open .card{animation-duration:.01s}.flap,.env-back,.env-front{transition-duration:.01s}}
+</style>
+</head>
+<body>
+<div class="petals" aria-hidden="true"></div>
+<div class="blooms" aria-hidden="true"></div>
+<div class="scene" id="scene">
+<div class="hint" id="hint">Tap to open</div>
+<div class="stack">
+<div class="env-back" aria-hidden="true"></div>
+<div class="card-wrap">
+<div class="card" id="card">
+<div class="script">Our Baby Shower</div>
+<div class="greeting" id="greeting" hidden></div>
+<div class="main-text">You are invited to <em>Zack &amp; Sasha's</em> Baby Shower High Tea, as we celebrate our <em>growing family</em>.</div>
+<div class="seg s1 details">
+<span class="row">High Tea <span class="dot"></span> 10:30am</span>
+<span class="row">Sunday, 30th August</span>
+<span class="row place">Devon Pixies</span>
+<a class="row addr" href="https://maps.app.goo.gl/Cq7JaU3R4AitQKjQ7" target="_blank" rel="noopener">270 Jacaranda Ave, Kingston QLD 4114</a>
+<span class="row nokids">No children, thank you for understanding.</span>
+</div>
+<div class="seg s3 rsvp">RSVP to Zack &middot; <a href="tel:0475636757">0475 636 757</a><span class="by">by Friday 14th August</span></div>
+<div class="seg s4 note littlenote"><span class="nb">A little note</span>If you'd like to visit bub in hospital, you'll need to be up-to-date with your whooping cough vaccine. We're getting ours on Sunday 13th September. Let us know and we'll book you in with us <span class="hrt">&hearts;</span></div>
+</div>
+</div>
+<div class="env-front" id="envelope" role="button" tabindex="0" aria-label="Open invitation">
+<div class="pocket"></div>
+<div class="flap"></div>
+<div class="seal"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.5-9C1 9 2.5 5 6 5c2 0 3.2 1.2 4 2.4C10.8 6.2 12 5 14 5c3.5 0 5 4 3.5 7-2.5 4.5-9.5 9-9.5 9z"/></svg></div>
+<div class="addressee" id="addressee" hidden></div>
+</div>
+</div>
+</div>
+<script>
+(function(){var l=document.querySelector('.petals');for(var i=0;i<6;i++){var p=document.createElement('div');p.className='petal '+(['','p2','p3'][i%3]);p.style.left=(Math.random()*100)+'vw';p.style.animationDuration=(10+Math.random()*9)+'s';p.style.animationDelay=(Math.random()*14)+'s';l.appendChild(p)}})();
+(function(){var l=document.querySelector('.blooms'),R=function(a,b){return a+Math.random()*(b-a)};
+// one bloom per cell of a 5x6 grid, jittered inside its cell: even coverage, no visible pattern
+for(var i=0;i<30;i++){var b=document.createElement('div'),s=R(12,26);
+b.className='bloom';b.style.width=s+'px';b.style.height=s+'px';
+b.style.left=R(1,15)+(i%5)*19+'%';b.style.top=R(1,13)+Math.floor(i/5)*16+'%';
+b.style.opacity=R(.18,.42).toFixed(2);
+for(var k=1;k<4;k++){b.style.setProperty('--x'+k,Math.round(R(-80,80))+'px');
+b.style.setProperty('--y'+k,Math.round(R(-65,65))+'px');
+b.style.setProperty('--r'+k,Math.round(R(-70,70))+'deg')}
+b.style.animationDuration=R(11,22)+'s';b.style.animationDelay=(-R(0,22))+'s';
+l.appendChild(b)}})();
+// ?name=Jess (or ?name=Tab,Rob) addresses the envelope and greets them on the card;
+// runs before the letter is measured so the extra line is accounted for
+(function(){
+var list=(new URLSearchParams(location.search).get('name')||'').split(',')
+  .map(function(s){return s.trim().replace(/\s+/g,' ').slice(0,24)}).filter(Boolean).slice(0,5);
+if(!list.length)return;
+var name=list.length>1?list.slice(0,-1).join(', ')+' & '+list[list.length-1]:list[0];
+var to=document.getElementById('addressee'),hi=document.getElementById('greeting');
+to.textContent=name;to.hidden=false;
+hi.textContent='Dear '+name+',';hi.hidden=false;
+document.title=name+' \u00b7 You are invited';
+})();
+(function(){
+var scene=document.getElementById('scene'),env=document.getElementById('envelope'),
+    stack=document.querySelector('.stack'),back=document.querySelector('.env-back'),
+    card=document.getElementById('card'),opened=false;
+// how far the letter must travel to clear the envelope mouth, and how small it must be to fit above it
+function measure(){
+  // the settled layout is built from endY, so measure with it off — otherwise each pass feeds on the last
+  var done=scene.classList.contains('done');
+  if(done)scene.classList.remove('done');
+  var vh=window.innerHeight,
+      envH=back.offsetHeight,cardH=card.offsetHeight,
+      stackTop=stack.getBoundingClientRect().top+window.pageYOffset,
+      layoutTop=stackTop+9,gap=Math.max(12,Math.round(vh*.02)),
+      // 44 keeps the body's bottom padding inside the viewport when the card is tall
+      restTop=Math.max(gap+2,Math.min(56,vh-cardH-44));
+  if(done)scene.classList.add('done');
+  if(!opened){
+    scene.style.setProperty('--pullS',Math.min(1,(stackTop+envH*.5-gap)/cardH).toFixed(4));
+    scene.style.setProperty('--pullY',Math.round(gap-layoutTop)+'px');
+  }
+  scene.style.setProperty('--endY',Math.round(restTop-layoutTop)+'px');
+}
+measure();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(measure);
+window.addEventListener('resize',measure);
+function open(){if(opened)return;opened=true;scene.classList.add('open');
+  setTimeout(function(){scene.classList.add('out')},1480);
+  setTimeout(function(){scene.classList.add('done');document.documentElement.classList.add('opened')},2600)}
+env.addEventListener('click',open);
+env.addEventListener('keydown',function(v){if(v.key==='Enter'||v.key===' '){v.preventDefault();open()}});
+})();
+</script>
+</body>
+</html>
